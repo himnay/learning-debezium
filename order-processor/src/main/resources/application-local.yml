@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: order-processor
+  threads:
+    virtual:
+      enabled: true
+  kafka:
+    consumer:
+      bootstrap-servers: localhost:9092
+      group-id: order-processor
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+server:
+  port: 8081
+
+app:
+  kafka:
+    topics:
+      # <topic.prefix>.<schema>.<table> from the Debezium connector config
+      orders: orders-db.public.orders
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: Consumes Debezium order change events from Kafka
+    version: 0.0.1-SNAPSHOT
+
+logging:
+  level:
+    com.org.learning: DEBUG

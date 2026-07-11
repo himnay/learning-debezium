@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: order-service
+  threads:
+    virtual:
+      enabled: true
+  jpa:
+    # Flyway owns the schema — Hibernate only validates against it
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  datasource:
+    url: jdbc:postgresql://localhost:5432/orders_db
+    username: postgres
+    password: postgres
+
+server:
+  port: 8080
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: ${spring.application.name}
+
+info:
+  app:
+    name: ${spring.application.name}
+    description: REST API that writes orders to PostgreSQL (CDC source)
+    version: 0.0.1-SNAPSHOT
+
+logging:
+  level:
+    com.org.learning: DEBUG

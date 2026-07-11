@@ -1,0 +1,202 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-07-11T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v11.0.0",
+  "resources": [
+    {
+      "_id": "wrk_debezium_cdc",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "learning-debezium-cdc",
+      "description": "Order CDC flow: order-service (PostgreSQL) -> Debezium -> Kafka -> order-processor",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_debezium_cdc",
+      "name": "Base Environment",
+      "data": {
+        "order_service_url": "http://localhost:8080",
+        "connect_url": "http://localhost:8083"
+      }
+    },
+    {
+      "_id": "fld_orders",
+      "_type": "request_group",
+      "parentId": "wrk_debezium_cdc",
+      "name": "Orders",
+      "metaSortKey": -100
+    },
+    {
+      "_id": "fld_connect",
+      "_type": "request_group",
+      "parentId": "wrk_debezium_cdc",
+      "name": "Debezium Connect",
+      "metaSortKey": -90
+    },
+    {
+      "_id": "fld_actuator",
+      "_type": "request_group",
+      "parentId": "wrk_debezium_cdc",
+      "name": "Actuator",
+      "metaSortKey": -80
+    },
+    {
+      "_id": "req_create_order",
+      "_type": "request",
+      "parentId": "fld_orders",
+      "name": "Create Order",
+      "method": "POST",
+      "url": "{{ _.order_service_url }}/api/v1/orders",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"customerId\": \"customer-1\",\n  \"product\": \"laptop\",\n  \"quantity\": 2,\n  \"price\": 1299.99\n}"
+      },
+      "metaSortKey": -100
+    },
+    {
+      "_id": "req_list_orders",
+      "_type": "request",
+      "parentId": "fld_orders",
+      "name": "List Orders",
+      "method": "GET",
+      "url": "{{ _.order_service_url }}/api/v1/orders",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -90
+    },
+    {
+      "_id": "req_get_order",
+      "_type": "request",
+      "parentId": "fld_orders",
+      "name": "Get Order",
+      "method": "GET",
+      "url": "{{ _.order_service_url }}/api/v1/orders/1",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -80
+    },
+    {
+      "_id": "req_update_order",
+      "_type": "request",
+      "parentId": "fld_orders",
+      "name": "Update Order",
+      "method": "PUT",
+      "url": "{{ _.order_service_url }}/api/v1/orders/1",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"customerId\": \"customer-1\",\n  \"product\": \"laptop pro\",\n  \"quantity\": 1,\n  \"price\": 1999.99\n}"
+      },
+      "metaSortKey": -70
+    },
+    {
+      "_id": "req_update_order_status",
+      "_type": "request",
+      "parentId": "fld_orders",
+      "name": "Update Order Status",
+      "method": "PATCH",
+      "url": "{{ _.order_service_url }}/api/v1/orders/1/status",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"CONFIRMED\"\n}"
+      },
+      "metaSortKey": -60
+    },
+    {
+      "_id": "req_delete_order",
+      "_type": "request",
+      "parentId": "fld_orders",
+      "name": "Delete Order",
+      "method": "DELETE",
+      "url": "{{ _.order_service_url }}/api/v1/orders/1",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -50
+    },
+    {
+      "_id": "req_list_connectors",
+      "_type": "request",
+      "parentId": "fld_connect",
+      "name": "List Connectors",
+      "method": "GET",
+      "url": "{{ _.connect_url }}/connectors",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -100
+    },
+    {
+      "_id": "req_connector_status",
+      "_type": "request",
+      "parentId": "fld_connect",
+      "name": "Orders Connector Status",
+      "method": "GET",
+      "url": "{{ _.connect_url }}/connectors/orders-connector/status",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -90
+    },
+    {
+      "_id": "req_register_connector",
+      "_type": "request",
+      "parentId": "fld_connect",
+      "name": "Register Orders Connector",
+      "method": "POST",
+      "url": "{{ _.connect_url }}/connectors",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"orders-connector\",\n  \"config\": {\n    \"connector.class\": \"io.debezium.connector.postgresql.PostgresConnector\",\n    \"tasks.max\": \"1\",\n    \"database.hostname\": \"postgres\",\n    \"database.port\": \"5432\",\n    \"database.user\": \"postgres\",\n    \"database.password\": \"postgres\",\n    \"database.dbname\": \"orders_db\",\n    \"topic.prefix\": \"orders-db\",\n    \"table.include.list\": \"public.orders\",\n    \"plugin.name\": \"pgoutput\",\n    \"slot.name\": \"orders_slot\",\n    \"publication.autocreate.mode\": \"all_tables\",\n    \"snapshot.mode\": \"initial\",\n    \"decimal.handling.mode\": \"string\",\n    \"tombstones.on.delete\": \"true\",\n    \"key.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\n    \"key.converter.schemas.enable\": \"false\",\n    \"value.converter\": \"org.apache.kafka.connect.json.JsonConverter\",\n    \"value.converter.schemas.enable\": \"false\"\n  }\n}"
+      },
+      "metaSortKey": -80
+    },
+    {
+      "_id": "req_restart_connector",
+      "_type": "request",
+      "parentId": "fld_connect",
+      "name": "Restart Orders Connector",
+      "method": "POST",
+      "url": "{{ _.connect_url }}/connectors/orders-connector/restart?includeTasks=true&onlyFailed=false",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -70
+    },
+    {
+      "_id": "req_delete_connector",
+      "_type": "request",
+      "parentId": "fld_connect",
+      "name": "Delete Orders Connector",
+      "method": "DELETE",
+      "url": "{{ _.connect_url }}/connectors/orders-connector",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -60
+    },
+    {
+      "_id": "req_health_order_service",
+      "_type": "request",
+      "parentId": "fld_actuator",
+      "name": "order-service Health",
+      "method": "GET",
+      "url": "{{ _.order_service_url }}/actuator/health",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -100
+    },
+    {
+      "_id": "req_health_order_processor",
+      "_type": "request",
+      "parentId": "fld_actuator",
+      "name": "order-processor Health",
+      "method": "GET",
+      "url": "http://localhost:8081/actuator/health",
+      "headers": [],
+      "body": {},
+      "metaSortKey": -90
+    }
+  ]
+}

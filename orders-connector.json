@@ -1,0 +1,29 @@
+{
+  "name": "orders-connector",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+    "tasks.max": "1",
+
+    "database.hostname": "postgres",
+    "database.port": "5432",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "orders_db",
+
+    "topic.prefix": "orders-db",
+    "table.include.list": "public.orders",
+
+    "plugin.name": "pgoutput",
+    "slot.name": "orders_slot",
+    "publication.autocreate.mode": "all_tables",
+    "snapshot.mode": "initial",
+
+    "decimal.handling.mode": "string",
+    "tombstones.on.delete": "true",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false"
+  }
+}
