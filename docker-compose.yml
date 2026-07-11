@@ -92,7 +92,7 @@ services:
       connect:
         condition: service_healthy
     volumes:
-      - ./debezium/orders-connector.json:/orders-connector.json:ro
+      - ./orders-connector.json:/orders-connector.json:ro
     entrypoint: >
       sh -c "curl -s -X POST -H 'Content-Type: application/json'
       --data @/orders-connector.json http://connect:8083/connectors

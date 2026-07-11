@@ -5,7 +5,7 @@ set -euo pipefail
 
 CONNECT_URL="${CONNECT_URL:-http://localhost:8083}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONNECTOR_FILE="${SCRIPT_DIR}/../debezium/orders-connector.json"
+CONNECTOR_FILE="${SCRIPT_DIR}/orders-connector.json"
 
 echo "Registering orders-connector at ${CONNECT_URL} ..."
 curl -fsS -X POST \
