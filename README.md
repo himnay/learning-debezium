@@ -1,4 +1,4 @@
-# learning-debezium-cdc
+# learning-debezium
 
 **Change Data Capture (CDC) end-to-end**: a Spring Boot service writes orders to PostgreSQL
 over JDBC, Debezium tails the database write-ahead log and publishes every row change to
@@ -17,19 +17,19 @@ flowchart TD
 
 ## Table of contents
 
-1. [What is Change Data Capture?](#1-what-is-change-data-capture)
-2. [The problem CDC solves: dual writes](#2-the-problem-cdc-solves-dual-writes)
-3. [Why Debezium?](#3-why-debezium)
-4. [How Debezium captures changes from PostgreSQL](#4-how-debezium-captures-changes-from-postgresql)
-5. [Project architecture](#5-project-architecture)
-6. [Anatomy of a change event](#6-anatomy-of-a-change-event)
-7. [Design decisions in this repo](#7-design-decisions-in-this-repo)
-8. [Running the project](#8-running-the-project)
-9. [Configuration profiles](#9-configuration-profiles)
-10. [Testing](#10-testing)
-11. [Operating the connector](#11-operating-the-connector)
-12. [Production considerations & pitfalls](#12-production-considerations--pitfalls)
-13. [Further reading](#13-further-reading)
+1. 🔄 [What is Change Data Capture?](#1-what-is-change-data-capture)
+2. 🔄 [The problem CDC solves: dual writes](#2-the-problem-cdc-solves-dual-writes)
+3. 🔄 [Why Debezium?](#3-why-debezium)
+4. 🗄️ [How Debezium captures changes from PostgreSQL](#4-how-debezium-captures-changes-from-postgresql)
+5. 🏗️ [Project architecture](#5-project-architecture)
+6. 💡 [Anatomy of a change event](#6-anatomy-of-a-change-event)
+7. 🏗️ [Design decisions in this repo](#7-design-decisions-in-this-repo)
+8. 🚀 [Running the project](#8-running-the-project)
+9. ⚙️ [Configuration profiles](#9-configuration-profiles)
+10. 🧪 [Testing](#10-testing)
+11. 🔹 [Operating the connector](#11-operating-the-connector)
+12. ⚠️ [Production considerations & pitfalls](#12-production-considerations--pitfalls)
+13. 📚 [Further reading](#13-further-reading)
 
 ---
 
@@ -303,7 +303,7 @@ mvn spring-boot:run -pl order-processor
 
 ### Try it
 
-Import `learning-debezium-cdc.insomnia.json` into Insomnia (folders for Orders CRUD,
+Import `learning-debezium.insomnia.json` into Insomnia (folders for Orders CRUD,
 Debezium Connect admin, and actuator health), or use curl:
 
 ```bash
