@@ -33,7 +33,8 @@ flowchart TD
 
 ---
 
-## 1. What is Change Data Capture?
+<a id="1-what-is-change-data-capture"></a>
+## 1. 🔄 What is Change Data Capture?
 
 Change Data Capture is a pattern for observing every insert, update, and delete committed
 to a database and turning each one into an **event** that other systems can consume. Instead
@@ -69,7 +70,8 @@ Typical CDC use cases:
 - **Audit trails** — an immutable history of every row change, for free
 - **Legacy modernization (strangler fig)** — mirror a legacy database into new services without touching legacy code
 
-## 2. The problem CDC solves: dual writes
+<a id="2-the-problem-cdc-solves-dual-writes"></a>
+## 2. 🔄 The problem CDC solves: dual writes
 
 The naive way to "save data and tell others about it" is to do both from application code:
 
@@ -118,7 +120,8 @@ or phantom events per billion transactions.
 > outbox table. Debezium even ships a built-in outbox event router SMT. This repo streams the
 > `orders` table directly for simplicity; the mechanics are identical.
 
-## 3. Why Debezium?
+<a id="3-why-debezium"></a>
+## 3. 🔄 Why Debezium?
 
 [Debezium](https://debezium.io) is the de-facto standard open-source CDC platform, started
 at Red Hat, now used at massive scale (Shopify, Vimeo, and many others). As of **July 2026
@@ -152,7 +155,8 @@ Alternatives and where they fit:
 | Fivetran / Airbyte         | ELT-oriented, batch-leaning; analytics pipelines rather than event-driven services |
 | Native logical replication | Postgres→Postgres only; no Kafka, no event fan-out                                 |
 
-## 4. How Debezium captures changes from PostgreSQL
+<a id="4-how-debezium-captures-changes-from-postgresql"></a>
+## 4. 🗄️ How Debezium captures changes from PostgreSQL
 
 PostgreSQL writes every change to its **Write-Ahead Log (WAL)** before applying it — that is
 how it guarantees durability. With `wal_level=logical`, Postgres additionally writes enough
@@ -190,7 +194,8 @@ Lifecycle on `docker compose up`:
 3. `order-service` boots, Flyway creates the `orders` table — because the publication covers *all tables*, changes flow immediately with no connector restart
 4. Every committed change to `orders` appears on the Kafka topic `orders-db.public.orders` within milliseconds
 
-## 5. Project architecture
+<a id="5-project-architecture"></a>
+## 5. 🏗️ Project architecture
 
 ### Modules
 
@@ -234,7 +239,8 @@ sequenceDiagram
     OP->>OP: deserialize envelope, dispatch on op code
 ```
 
-## 6. Anatomy of a change event
+<a id="6-anatomy-of-a-change-event"></a>
+## 6. 💡 Anatomy of a change event
 
 The connector runs with `value.converter.schemas.enable=false` (no verbose inline schema)
 and `decimal.handling.mode=string` (NUMERIC arrives as `"1299.99"` instead of base64-encoded
@@ -277,7 +283,8 @@ records for a key once it sees the tombstone. `OrderEventListener` handles them 
 The message **key** is the primary key (`{"id": 1}`), which puts all events for one order on
 the same partition — Kafka then guarantees consumers see that order's changes **in order**.
 
-## 7. Design decisions in this repo
+<a id="7-design-decisions-in-this-repo"></a>
+## 7. 🏗️ Design decisions in this repo
 
 | Decision                                                   | Why                                                                                                                                                                                                                                                             |
 |------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -290,7 +297,8 @@ the same partition — Kafka then guarantees consumers see that order's changes 
 | Container names prefixed `debezium-`                       | Bare names like `kafka` collide with the other `learning-*` project stacks on the same machine                                                                                                                                                                  |
 | One-shot `connect-init` service                            | `docker compose up -d` yields a fully wired pipeline, no manual REST call                                                                                                                                                                                       |
 
-## 8. Running the project
+<a id="8-running-the-project"></a>
+## 8. 🚀 Running the project
 
 ```bash
 # 1. Infrastructure (connector registers automatically)
@@ -326,7 +334,8 @@ UIs:
 - Kafdrop (topic browser): <http://localhost:9000> → topic `orders-db.public.orders`
 - Connect REST: <http://localhost:8083/connectors/orders-connector/status>
 
-## 9. Configuration profiles
+<a id="9-configuration-profiles"></a>
+## 9. ⚙️ Configuration profiles
 
 There is no `application.yml` — each profile has its own complete file:
 
@@ -345,7 +354,8 @@ mvn spring-boot:run -pl order-service -Dspring-boot.run.profiles=prod
 # or: SPRING_PROFILES_ACTIVE=prod java -jar order-service.jar
 ```
 
-## 10. Testing
+<a id="10-testing"></a>
+## 10. 🧪 Testing
 
 ```bash
 mvn test
@@ -361,7 +371,8 @@ mvn test
 Test sources follow the house convention: `src/test/java/unit` and `src/test/java/intg`,
 wired via `build-helper-maven-plugin`. Integration tests need Docker.
 
-## 11. Operating the connector
+<a id="11-operating-the-connector"></a>
+## 11. 🔹 Operating the connector
 
 Everything is driven through the Kafka Connect REST API (also available in the Insomnia
 collection):
@@ -383,7 +394,8 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
   AS retained_wal FROM pg_replication_slots;   -- how much WAL the slot is holding back
 ```
 
-## 12. Production considerations & pitfalls
+<a id="12-production-considerations--pitfalls"></a>
+## 12. ⚠️ Production considerations & pitfalls
 
 - **Replication slot ↔ disk growth.** Postgres retains WAL until the slot consumes it. If
   the connector is down for a long weekend, WAL piles up and can fill the disk. Monitor
@@ -407,7 +419,8 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
   **3.6** (July 2026). Upgrades are usually drop-in — offsets and slot survive — but read
   the [release notes](https://debezium.io/releases/) before bumping majors.
 
-## 13. Further reading
+<a id="13-further-reading"></a>
+## 13. 📚 Further reading
 
 - [Debezium documentation](https://debezium.io/documentation/) · [PostgreSQL connector reference](https://debezium.io/documentation/reference/stable/connectors/postgresql.html)
 - [Debezium releases overview](https://debezium.io/releases/) · [Debezium 3.6 release announcement](https://debezium.io/blog/2026/07/01/debezium-3-6-final-release/)
