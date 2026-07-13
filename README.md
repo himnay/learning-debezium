@@ -62,6 +62,8 @@ and zero impact on the tables being observed.
 
 Typical CDC use cases:
 
+<ul>
+
 - **Microservice data exchange** — propagate changes from one service's database to others without tight coupling
 - **Transactional outbox** — publish domain events reliably (see next section)
 - **Cache invalidation** — evict/update caches the instant source rows change
@@ -69,6 +71,8 @@ Typical CDC use cases:
 - **Data warehouse / lake feeds** — stream OLTP changes into analytics systems continuously instead of nightly batch ETL
 - **Audit trails** — an immutable history of every row change, for free
 - **Legacy modernization (strangler fig)** — mirror a legacy database into new services without touching legacy code
+
+</ul>
 
 <a id="2-the-problem-cdc-solves-dual-writes"></a>
 ## 2. 🔄 The problem CDC solves: dual writes
@@ -136,6 +140,8 @@ out to search, caches, and warehouses:
 
 What you get over rolling your own log reader:
 
+<ul>
+
 - **Battle-tested connectors** for PostgreSQL, MySQL/MariaDB, MongoDB, SQL Server, Oracle, Db2, Cassandra, Spanner, Vitess, Informix — one consistent event format across all of them
 - **Initial snapshot + streaming**: consistent snapshot of existing data, then seamless switch to live log streaming; *incremental snapshots* let you re-snapshot tables without stopping the stream
 - **At-least-once delivery** with precise offset tracking; resumes exactly where it left off after restarts
@@ -144,6 +150,8 @@ What you get over rolling your own log reader:
 - **Single Message Transforms (SMTs)**: outbox event routing, content filtering, field renaming — declaratively in connector config
 - **Runs on Kafka Connect**: scaling, fault tolerance, offset management, and a REST API come from the platform, not your code
 - **Deployment flexibility**: Kafka Connect (this repo), standalone **Debezium Server** (targets Kinesis, Pub/Sub, Redis Streams, etc. — no Kafka needed), or embedded engine inside a JVM app
+
+</ul>
 
 Alternatives and where they fit:
 
@@ -181,11 +189,15 @@ flowchart LR
 
 The moving parts:
 
+<ul>
+
 - **`wal_level=logical`** — our compose file starts Postgres with this (`command: postgres -c wal_level=logical`)
 - **Replication slot** (`orders_slot`) — the server-side cursor that remembers how far the consumer has read; Postgres retains WAL until the slot has consumed it
 - **Publication** — declares which tables' changes are exposed (we use `publication.autocreate.mode=all_tables`)
 - **`pgoutput`** — Postgres's built-in logical decoding plugin (no extension install needed, unlike the older `wal2json`/`decoderbufs`)
 - **Snapshot** — on first start (`snapshot.mode=initial`) Debezium reads all existing rows as `op: "r"` events, then switches to streaming the WAL
+
+</ul>
 
 Lifecycle on `docker compose up`:
 
@@ -330,9 +342,13 @@ curl -s -X DELETE localhost:8080/api/v1/orders/1
 
 UIs:
 
+<ul>
+
 - Swagger: <http://localhost:8080/swagger-ui.html>
 - Kafdrop (topic browser): <http://localhost:9000> → topic `orders-db.public.orders`
 - Connect REST: <http://localhost:8083/connectors/orders-connector/status>
+
+</ul>
 
 <a id="9-configuration-profiles"></a>
 ## 9. ⚙️ Configuration profiles
@@ -397,6 +413,8 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
 <a id="12-production-considerations--pitfalls"></a>
 ## 12. ⚠️ Production considerations & pitfalls
 
+<ul>
+
 - **Replication slot ↔ disk growth.** Postgres retains WAL until the slot consumes it. If
   the connector is down for a long weekend, WAL piles up and can fill the disk. Monitor
   `retained_wal` (query above) and set `max_slot_wal_keep_size` as a circuit breaker.
@@ -419,8 +437,12 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
   **3.6** (July 2026). Upgrades are usually drop-in — offsets and slot survive — but read
   the [release notes](https://debezium.io/releases/) before bumping majors.
 
+</ul>
+
 <a id="13-further-reading"></a>
 ## 13. 📚 Further reading
+
+<ul>
 
 - [Debezium documentation](https://debezium.io/documentation/) · [PostgreSQL connector reference](https://debezium.io/documentation/reference/stable/connectors/postgresql.html)
 - [Debezium releases overview](https://debezium.io/releases/) · [Debezium 3.6 release announcement](https://debezium.io/blog/2026/07/01/debezium-3-6-final-release/)
@@ -429,3 +451,5 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
 - [Solving dual writes with CDC and outbox](https://medium.com/@mohantyshyama/designing-fault-tolerant-systems-solving-dual-writes-with-cdc-and-outbox-dd9a4ee727bb)
 - [Outbox pattern explained — Streamkap](https://streamkap.com/resources-and-guides/outbox-pattern-explained)
 - [PostgreSQL logical decoding docs](https://www.postgresql.org/docs/current/logicaldecoding.html)
+
+</ul>
