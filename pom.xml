@@ -12,10 +12,10 @@
     </parent>
 
     <groupId>com.org.learning</groupId>
-    <artifactId>learning-debezium-cdc</artifactId>
+    <artifactId>learning-debezium</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>learning-debezium-cdc</name>
+    <name>learning-debezium</name>
     <description>Root POM — Debezium CDC learning modules: order-service writes to PostgreSQL, Debezium streams change events to Kafka, order-processor consumes them</description>
 
     <modules>

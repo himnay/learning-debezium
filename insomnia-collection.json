@@ -1,0 +1,150 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-07-14T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v12.0.0",
+  "resources": [
+    {
+      "_id": "wrk_learning_0000000000000000000000000001",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "learning-debezium-cdc :: REST",
+      "scope": "collection",
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "env_learning_0000000000000000000000000002",
+      "_type": "environment",
+      "parentId": "wrk_learning_0000000000000000000000000001",
+      "name": "Base Environment",
+      "data": {
+        "host": "localhost"
+      },
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "fld_learning_0000000000000000000000000003",
+      "_type": "request_group",
+      "parentId": "wrk_learning_0000000000000000000000000001",
+      "name": "order-service (:8080)",
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_learning_0000000000000000000000000004",
+      "_type": "request",
+      "parentId": "fld_learning_0000000000000000000000000003",
+      "name": "DELETE /api/v1/orders/{id}",
+      "method": "DELETE",
+      "url": "http://{{ _.host }}:8080/api/v1/orders/<id>",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 0,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_learning_0000000000000000000000000005",
+      "_type": "request",
+      "parentId": "fld_learning_0000000000000000000000000003",
+      "name": "GET /api/v1/orders",
+      "method": "GET",
+      "url": "http://{{ _.host }}:8080/api/v1/orders",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 100,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_learning_0000000000000000000000000006",
+      "_type": "request",
+      "parentId": "fld_learning_0000000000000000000000000003",
+      "name": "GET /api/v1/orders/{id}",
+      "method": "GET",
+      "url": "http://{{ _.host }}:8080/api/v1/orders/<id>",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 200,
+      "created": 1784063187842,
+      "modified": 1784063187842
+    },
+    {
+      "_id": "req_learning_0000000000000000000000000007",
+      "_type": "request",
+      "parentId": "fld_learning_0000000000000000000000000003",
+      "name": "PATCH /api/v1/orders/{id}/status",
+      "method": "PATCH",
+      "url": "http://{{ _.host }}:8080/api/v1/orders/<id>/status",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 300,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    },
+    {
+      "_id": "req_learning_0000000000000000000000000008",
+      "_type": "request",
+      "parentId": "fld_learning_0000000000000000000000000003",
+      "name": "POST /api/v1/orders",
+      "method": "POST",
+      "url": "http://{{ _.host }}:8080/api/v1/orders",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 400,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    },
+    {
+      "_id": "req_learning_0000000000000000000000000009",
+      "_type": "request",
+      "parentId": "fld_learning_0000000000000000000000000003",
+      "name": "PUT /api/v1/orders/{id}",
+      "method": "PUT",
+      "url": "http://{{ _.host }}:8080/api/v1/orders/<id>",
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "metaSortKey": 500,
+      "created": 1784063187842,
+      "modified": 1784063187842,
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \n}"
+      }
+    }
+  ]
+}

@@ -8,7 +8,7 @@
       "_id": "wrk_debezium_cdc",
       "_type": "workspace",
       "parentId": null,
-      "name": "learning-debezium-cdc",
+      "name": "learning-debezium",
       "description": "Order CDC flow: order-service (PostgreSQL) -> Debezium -> Kafka -> order-processor",
       "scope": "collection"
     },
