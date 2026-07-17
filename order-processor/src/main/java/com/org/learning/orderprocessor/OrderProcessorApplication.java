@@ -6,7 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import java.util.Map;
 
 @SpringBootApplication
-public class OrderProcessorApplication {
+class OrderProcessorApplication {
 
     public static void main(String[] args) {
         var application = new SpringApplication(OrderProcessorApplication.class);
