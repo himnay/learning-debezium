@@ -28,8 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
-@AutoConfigureMockMvc
 @Testcontainers
+@AutoConfigureMockMvc
 @ActiveProfiles("local")
 class OrderControllerIntegrationTest {
 

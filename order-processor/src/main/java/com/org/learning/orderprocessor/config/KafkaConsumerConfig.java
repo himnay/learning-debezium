@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.util.backoff.FixedBackOff;
 
-@Configuration
 @Slf4j
+@Configuration
 public class KafkaConsumerConfig {
 
     /**
