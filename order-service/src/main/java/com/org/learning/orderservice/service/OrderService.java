@@ -20,6 +20,7 @@ public class OrderService {
 
     private final OrderRepository orderRepository;
 
+    /** Creates. */
     @Transactional
     public OrderResponse create(OrderRequest request) {
         var order = Order.builder()
@@ -34,11 +35,13 @@ public class OrderService {
         return OrderResponse.from(saved);
     }
 
+    /** Returns the get. */
     @Transactional(readOnly = true)
     public OrderResponse get(Long id) {
         return OrderResponse.from(findOrder(id));
     }
 
+    /** Lists. */
     @Transactional(readOnly = true)
     public List<OrderResponse> list() {
         return orderRepository.findAll().stream()
@@ -46,6 +49,7 @@ public class OrderService {
                 .toList();
     }
 
+    /** Updates. */
     @Transactional
     public OrderResponse update(Long id, OrderRequest request) {
         var order = findOrder(id);
@@ -59,6 +63,7 @@ public class OrderService {
         return OrderResponse.from(order);
     }
 
+    /** Updates status. */
     @Transactional
     public OrderResponse updateStatus(Long id, OrderStatus status) {
         var order = findOrder(id);
@@ -68,6 +73,7 @@ public class OrderService {
         return OrderResponse.from(order);
     }
 
+    /** Deletes. */
     @Transactional
     public void delete(Long id) {
         var order = findOrder(id);

@@ -27,33 +27,39 @@ public class OrderController {
 
     private final OrderService orderService;
 
+    /** Creates. */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public OrderResponse create(@RequestBody @Valid OrderRequest request) {
         return orderService.create(request);
     }
 
+    /** Lists. */
     @GetMapping
     public List<OrderResponse> list() {
         return orderService.list();
     }
 
+    /** Returns the get. */
     @GetMapping("/{id}")
     public OrderResponse get(@PathVariable Long id) {
         return orderService.get(id);
     }
 
+    /** Updates. */
     @PutMapping("/{id}")
     public OrderResponse update(@PathVariable Long id, @RequestBody @Valid OrderRequest request) {
         return orderService.update(id, request);
     }
 
+    /** Updates status. */
     @PatchMapping("/{id}/status")
     public OrderResponse updateStatus(@PathVariable Long id,
                                       @RequestBody @Valid OrderStatusUpdateRequest request) {
         return orderService.updateStatus(id, request.status());
     }
 
+    /** Deletes. */
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {

@@ -16,6 +16,7 @@ public record OrderResponse(
         Instant createdAt,
         Instant updatedAt) {
 
+    /** Returns the from. */
     public static OrderResponse from(Order order) {
         return new OrderResponse(
                 order.getId(),

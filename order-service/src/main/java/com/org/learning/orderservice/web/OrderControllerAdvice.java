@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 public class OrderControllerAdvice {
 
+    /** Handles validation. */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         var message = ex.getBindingResult().getFieldErrors().stream()
@@ -25,6 +26,7 @@ public class OrderControllerAdvice {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, message);
     }
 
+    /** Handles not found. */
     @ExceptionHandler(OrderNotFoundException.class)
     public ProblemDetail handleNotFound(OrderNotFoundException ex) {
         log.warn(ex.getMessage());

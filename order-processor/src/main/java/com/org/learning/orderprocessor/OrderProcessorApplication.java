@@ -8,6 +8,7 @@ import java.util.Map;
 @SpringBootApplication
 class OrderProcessorApplication {
 
+    /** Application entry point. */
     public static void main(String[] args) {
         var application = new SpringApplication(OrderProcessorApplication.class);
         // config is per-profile only (application-<profile>.yml) — fall back to local

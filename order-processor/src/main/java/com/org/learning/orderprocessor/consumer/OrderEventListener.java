@@ -15,6 +15,7 @@ public class OrderEventListener {
 
     private final ObjectMapper objectMapper;
 
+    /** Handles order change. */
     @KafkaListener(topics = "${app.kafka.topics.orders}")
     public void onOrderChange(ConsumerRecord<String, String> consumerRecord) {
         // Debezium emits a tombstone (null value) after each delete for log compaction
