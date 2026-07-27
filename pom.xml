@@ -24,12 +24,10 @@
     </modules>
 
     <properties>
-        <!-- Override super-pom default — CDC modules target Java 25 -->
         <java.version>25</java.version>
         <maven.compiler.release>${java.version}</maven.compiler.release>
     </properties>
 
-    <!-- Shared dependencies for all modules -->
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -59,7 +57,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <!-- Mockito/ByteBuddy need experimental mode for Java 25 class version -->
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED -Dnet.bytebuddy.experimental=true</argLine>
                 </configuration>
             </plugin>
