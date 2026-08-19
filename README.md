@@ -1,4 +1,4 @@
-# <span style="color:hsl(25,68%,44%)">learning-debezium</span>
+# <span style="color:hsl(25,80%,58%)">learning-debezium</span>
 
 **Change Data Capture (CDC) end-to-end**: a Spring Boot service writes orders to PostgreSQL
 over JDBC, Debezium tails the database write-ahead log and publishes every row change to
@@ -15,7 +15,7 @@ flowchart TD
 
 ---
 
-## <span style="color:hsl(44,68%,32%)">Table of contents</span>
+## <span style="color:hsl(163,80%,58%)">Table of contents</span>
 
 1. 🔄 [What is Change Data Capture?](#1-what-is-change-data-capture)
 2. 🔄 [The problem CDC solves: dual writes](#2-the-problem-cdc-solves-dual-writes)
@@ -34,7 +34,7 @@ flowchart TD
 ---
 
 <a id="1-what-is-change-data-capture"></a>
-## <span style="color:hsl(63,68%,32%)">1. 🔄 What is Change Data Capture?</span>
+## <span style="color:hsl(300,80%,58%)">1. 🔄 What is Change Data Capture?</span>
 
 Change Data Capture is a pattern for observing every insert, update, and delete committed
 to a database and turning each one into an **event** that other systems can consume. Instead
@@ -75,7 +75,7 @@ Typical CDC use cases:
 </ul>
 
 <a id="2-the-problem-cdc-solves-dual-writes"></a>
-## <span style="color:hsl(82,68%,32%)">2. 🔄 The problem CDC solves: dual writes</span>
+## <span style="color:hsl(78,80%,58%)">2. 🔄 The problem CDC solves: dual writes</span>
 
 The naive way to "save data and tell others about it" is to do both from application code:
 
@@ -125,7 +125,7 @@ or phantom events per billion transactions.
 > `orders` table directly for simplicity; the mechanics are identical.
 
 <a id="3-why-debezium"></a>
-## <span style="color:hsl(101,68%,32%)">3. 🔄 Why Debezium?</span>
+## <span style="color:hsl(215,80%,58%)">3. 🔄 Why Debezium?</span>
 
 [Debezium](https://debezium.io) is the de-facto standard open-source CDC platform, started
 at Red Hat, now used at massive scale (Shopify, Vimeo, and many others). As of **July 2026
@@ -164,7 +164,7 @@ Alternatives and where they fit:
 | Native logical replication | Postgres→Postgres only; no Kafka, no event fan-out                                 |
 
 <a id="4-how-debezium-captures-changes-from-postgresql"></a>
-## <span style="color:hsl(120,68%,32%)">4. 🗄️ How Debezium captures changes from PostgreSQL</span>
+## <span style="color:hsl(353,80%,58%)">4. 🗄️ How Debezium captures changes from PostgreSQL</span>
 
 PostgreSQL writes every change to its **Write-Ahead Log (WAL)** before applying it — that is
 how it guarantees durability. With `wal_level=logical`, Postgres additionally writes enough
@@ -207,9 +207,9 @@ Lifecycle on `docker compose up`:
 4. Every committed change to `orders` appears on the Kafka topic `orders-db.public.orders` within milliseconds
 
 <a id="5-project-architecture"></a>
-## <span style="color:hsl(139,68%,32%)">5. 🏗️ Project architecture</span>
+## <span style="color:hsl(130,80%,58%)">5. 🏗️ Project architecture</span>
 
-### <span style="color:hsl(158,68%,36%)">Modules</span>
+### <span style="color:hsl(268,80%,58%)">Modules</span>
 
 | Module            | Port | Role                                                                                    |
 |-------------------|------|-----------------------------------------------------------------------------------------|
@@ -220,7 +220,7 @@ Both are Spring Boot 4 / Java 25 modules under a root POM that inherits the shar
 `super-pom` (BOM-managed versions, enforcer, surefire/failsafe, git-commit-id, pitest and
 OWASP profiles) — same conventions as the sibling `learning-*` projects.
 
-### <span style="color:hsl(177,68%,36%)">Infrastructure (`docker-compose.yml`)</span>
+### <span style="color:hsl(45,80%,50%)">Infrastructure (`docker-compose.yml`)</span>
 
 | Service        | Container               | Port | Notes                                  |
 |----------------|-------------------------|------|----------------------------------------|
@@ -230,7 +230,7 @@ OWASP profiles) — same conventions as the sibling `learning-*` projects.
 | `connect-init` | `debezium-connect-init` | —    | One-shot curl: registers the connector |
 | `kafdrop`      | `debezium-kafdrop`      | 9000 | Kafka web UI — browse the topic        |
 
-### <span style="color:hsl(196,68%,36%)">End-to-end flow</span>
+### <span style="color:hsl(183,80%,58%)">End-to-end flow</span>
 
 ```mermaid
 sequenceDiagram
@@ -252,7 +252,7 @@ sequenceDiagram
 ```
 
 <a id="6-anatomy-of-a-change-event"></a>
-## <span style="color:hsl(214,68%,44%)">6. 💡 Anatomy of a change event</span>
+## <span style="color:hsl(320,80%,58%)">6. 💡 Anatomy of a change event</span>
 
 The connector runs with `value.converter.schemas.enable=false` (no verbose inline schema)
 and `decimal.handling.mode=string` (NUMERIC arrives as `"1299.99"` instead of base64-encoded
@@ -296,7 +296,7 @@ The message **key** is the primary key (`{"id": 1}`), which puts all events for 
 the same partition — Kafka then guarantees consumers see that order's changes **in order**.
 
 <a id="7-design-decisions-in-this-repo"></a>
-## <span style="color:hsl(233,68%,44%)">7. 🏗️ Design decisions in this repo</span>
+## <span style="color:hsl(98,80%,58%)">7. 🏗️ Design decisions in this repo</span>
 
 | Decision                                                   | Why                                                                                                                                                                                                                                                             |
 |------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
@@ -310,7 +310,7 @@ the same partition — Kafka then guarantees consumers see that order's changes 
 | One-shot `connect-init` service                            | `docker compose up -d` yields a fully wired pipeline, no manual REST call                                                                                                                                                                                       |
 
 <a id="8-running-the-project"></a>
-## <span style="color:hsl(252,68%,44%)">8. 🚀 Running the project</span>
+## <span style="color:hsl(235,80%,58%)">8. 🚀 Running the project</span>
 
 ```bash
 # 1. Infrastructure (connector registers automatically)
@@ -321,7 +321,7 @@ mvn spring-boot:run -pl order-service
 mvn spring-boot:run -pl order-processor
 ```
 
-### <span style="color:hsl(271,68%,44%)">Try it</span>
+### <span style="color:hsl(13,80%,58%)">Try it</span>
 
 Import `learning-debezium.insomnia.json` into Insomnia (folders for Orders CRUD,
 Debezium Connect admin, and actuator health), or use curl:
@@ -351,7 +351,7 @@ UIs:
 </ul>
 
 <a id="9-configuration-profiles"></a>
-## <span style="color:hsl(290,68%,44%)">9. ⚙️ Configuration profiles</span>
+## <span style="color:hsl(150,80%,58%)">9. ⚙️ Configuration profiles</span>
 
 There is no `application.yml` — each profile has its own complete file:
 
@@ -371,7 +371,7 @@ mvn spring-boot:run -pl order-service -Dspring-boot.run.profiles=prod
 ```
 
 <a id="10-testing"></a>
-## <span style="color:hsl(309,68%,44%)">10. 🧪 Testing</span>
+## <span style="color:hsl(288,80%,58%)">10. 🧪 Testing</span>
 
 ```bash
 mvn test
@@ -388,7 +388,7 @@ Test sources follow the house convention: `src/test/java/unit` and `src/test/jav
 wired via `build-helper-maven-plugin`. Integration tests need Docker.
 
 <a id="11-operating-the-connector"></a>
-## <span style="color:hsl(328,68%,44%)">11. 🔹 Operating the connector</span>
+## <span style="color:hsl(65,80%,50%)">11. 🔹 Operating the connector</span>
 
 Everything is driven through the Kafka Connect REST API (also available in the Insomnia
 collection):
@@ -411,7 +411,7 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
 ```
 
 <a id="12-production-considerations--pitfalls"></a>
-## <span style="color:hsl(347,68%,44%)">12. ⚠️ Production considerations & pitfalls</span>
+## <span style="color:hsl(203,80%,58%)">12. ⚠️ Production considerations & pitfalls</span>
 
 <ul>
 
@@ -440,7 +440,7 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
 </ul>
 
 <a id="13-further-reading"></a>
-## <span style="color:hsl(6,68%,44%)">13. 📚 Further reading</span>
+## <span style="color:hsl(340,80%,58%)">13. 📚 Further reading</span>
 
 <ul>
 
