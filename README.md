@@ -128,8 +128,8 @@ or phantom events per billion transactions.
 ## <span style="color:hsl(215,80%,58%)">3. 🔄 Why Debezium?</span>
 
 [Debezium](https://debezium.io) is the de-facto standard open-source CDC platform, started
-at Red Hat, now used at massive scale (Shopify, Vimeo, and many others). As of **July 2026
-the current release series is 3.6** ([release notes](https://debezium.io/blog/2026/07/01/debezium-3-6-final-release/)),
+at Red Hat, now used at massive scale (Shopify, Vimeo, and many others). As of **September 2026
+the current release series is 3.6** (3.6.3.Final; 3.7 in CR) ([release notes](https://debezium.io/blog/2026/07/01/debezium-3-6-final-release/)),
 with new connectors (YashanDB), core-wide quantile metrics, and a growing Debezium Platform
 UI for pipeline monitoring.
 
@@ -224,9 +224,9 @@ OWASP profiles) — same conventions as the sibling `learning-*` projects.
 
 | Service        | Container               | Port | Notes                                  |
 |----------------|-------------------------|------|----------------------------------------|
-| `postgres`     | `debezium-postgres`     | 5432 | Postgres 17, `wal_level=logical`       |
-| `kafka`        | `debezium-kafka`        | 9092 | KRaft mode — no Zookeeper              |
-| `connect`      | `debezium-connect`      | 8083 | Debezium Kafka Connect worker          |
+| `postgres`     | `debezium-postgres`     | 5432 | Postgres 19beta3 (still beta as of Sep 2026 — use 18 for anything stable), `wal_level=logical` |
+| `kafka`        | `debezium-kafka`        | 9092 | `cp-kafka:8.3.2` (Kafka 4.2), KRaft only |
+| `connect`      | `debezium-connect`      | 8083 | Debezium Kafka Connect worker (`connect:3.6` → 3.6.3.Final) |
 | `connect-init` | `debezium-connect-init` | —    | One-shot curl: registers the connector |
 | `kafdrop`      | `debezium-kafdrop`      | 9000 | Kafka web UI — browse the topic        |
 
@@ -380,7 +380,7 @@ mvn test
 | Test                                  | Kind                      | Proves                                                       |
 |---------------------------------------|---------------------------|--------------------------------------------------------------|
 | `OrderControllerUnitTest`             | `@WebMvcTest`             | validation, status codes, error advice                       |
-| `OrderControllerIntegrationTest`      | Testcontainers PostgreSQL | Flyway migration + full CRUD against real Postgres           |
+| `OrderControllerIntegrationTest`      | Testcontainers 2 PostgreSQL (`postgres:18-alpine`) | Flyway migration + full CRUD against real Postgres |
 | `OrderChangeEventDeserializationTest` | plain JUnit               | Debezium envelope → records mapping (create + delete shapes) |
 | `OrderEventListenerIntegrationTest`   | `@EmbeddedKafka`          | listener consumes and parses events end-to-end               |
 
@@ -433,9 +433,11 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
 - **Secure the pipeline.** This repo uses superuser `postgres` for simplicity; production
   wants a dedicated user with only `REPLICATION` + `SELECT` on captured tables, TLS to both
   Postgres and Kafka, and secrets from a vault (Connect supports config providers).
-- **Version note.** Compose pins `quay.io/debezium/connect:3.1`; the current series is
-  **3.6** (July 2026). Upgrades are usually drop-in — offsets and slot survive — but read
-  the [release notes](https://debezium.io/releases/) before bumping majors.
+- **Version note (as of Sep 2026).** Compose pins `quay.io/debezium/connect:3.6` (3.6.3.Final;
+  3.7 is at CR). Verified end-to-end against Postgres 19beta3 and `cp-kafka:8.3.2`: create,
+  update (with `before`), delete and tombstone all arrive. Upgrades are usually drop-in —
+  offsets and slot survive — but read the [release notes](https://debezium.io/releases/)
+  before bumping majors.
 
 </ul>
 
