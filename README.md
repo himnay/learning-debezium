@@ -298,16 +298,16 @@ the same partition — Kafka then guarantees consumers see that order's changes 
 <a id="7-design-decisions-in-this-repo"></a>
 ## <span style="color:hsl(98,80%,58%)">7. 🏗️ Design decisions in this repo</span>
 
-| Decision                                                   | Why                                                                                                                                                                                                                                                             |
-|------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| **Flyway owns the schema**, Hibernate `ddl-auto: validate` | Deterministic, versioned DDL; the CDC-critical `REPLICA IDENTITY FULL` lives in `V1__create_orders_table.sql` where it can't be forgotten                                                                                                                       |
-| `publication.autocreate.mode=all_tables`                   | The connector registers at compose-up, *before* Flyway has created the table. A filtered publication would fail on the missing table; an all-tables publication tolerates tables appearing later (`table.include.list` still filters what's published to Kafka) |
-| `decimal.handling.mode=string`                             | Default emits NUMERIC as base64 bytes (exact but unreadable); `string` keeps precision and stays human-readable                                                                                                                                                 |
-| Converter schemas disabled                                 | Envelope-only JSON, ~5× smaller messages; use Avro + Schema Registry in production instead                                                                                                                                                                      |
-| `tombstones.on.delete=true`                                | Keeps the topic compaction-ready                                                                                                                                                                                                                                |
-| `DefaultErrorHandler` with backoff + skip                  | A poison message must not block the CDC stream — retry twice, log, move on (use a dead-letter topic in production)                                                                                                                                              |
-| Container names prefixed `debezium-`                       | Bare names like `kafka` collide with the other `learning-*` project stacks on the same machine                                                                                                                                                                  |
-| One-shot `connect-init` service                            | `docker compose up -d` yields a fully wired pipeline, no manual REST call                                                                                                                                                                                       |
+| Decision                                                         | Why                                                                                                                                                                                                                                                             |
+|------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| **Flyway owns the schema**, Hibernate `ddl-auto: validate`       | Deterministic, versioned DDL; the CDC-critical `REPLICA IDENTITY FULL` lives in `V1__create_orders_table.sql` where it can't be forgotten                                                                                                                       |
+| `publication.autocreate.mode=all_tables`                         | The connector registers at compose-up, *before* Flyway has created the table. A filtered publication would fail on the missing table; an all-tables publication tolerates tables appearing later (`table.include.list` still filters what's published to Kafka) |
+| `decimal.handling.mode=string`                                   | Default emits NUMERIC as base64 bytes (exact but unreadable); `string` keeps precision and stays human-readable                                                                                                                                                 |
+| Converter schemas disabled                                       | Envelope-only JSON, ~5× smaller messages; use Avro + Schema Registry in production instead                                                                                                                                                                      |
+| `tombstones.on.delete=true`                                      | Keeps the topic compaction-ready                                                                                                                                                                                                                                |
+| [`DefaultErrorHandler`][DefaultErrorHandler] with backoff + skip | A poison message must not block the CDC stream — retry twice, log, move on (use a dead-letter topic in production)                                                                                                                                              |
+| Container names prefixed `debezium-`                             | Bare names like `kafka` collide with the other `learning-*` project stacks on the same machine                                                                                                                                                                  |
+| One-shot `connect-init` service                                  | `docker compose up -d` yields a fully wired pipeline, no manual REST call                                                                                                                                                                                       |
 
 <a id="8-running-the-project"></a>
 ## <span style="color:hsl(235,80%,58%)">8. 🚀 Running the project</span>
@@ -379,10 +379,10 @@ mvn test
 
 | Test                                  | Kind                      | Proves                                                       |
 |---------------------------------------|---------------------------|--------------------------------------------------------------|
-| `OrderControllerUnitTest`             | `@WebMvcTest`             | validation, status codes, error advice                       |
+| `OrderControllerUnitTest`             | [`@WebMvcTest`][WebMvcTest]             | validation, status codes, error advice                       |
 | `OrderControllerIntegrationTest`      | Testcontainers 2 PostgreSQL (`postgres:18-alpine`) | Flyway migration + full CRUD against real Postgres |
 | `OrderChangeEventDeserializationTest` | plain JUnit               | Debezium envelope → records mapping (create + delete shapes) |
-| `OrderEventListenerIntegrationTest`   | `@EmbeddedKafka`          | listener consumes and parses events end-to-end               |
+| `OrderEventListenerIntegrationTest`   | [`@EmbeddedKafka`][EmbeddedKafka]          | listener consumes and parses events end-to-end               |
 
 Test sources follow the house convention: `src/test/java/unit` and `src/test/java/intg`,
 wired via `build-helper-maven-plugin`. Integration tests need Docker.
@@ -455,3 +455,9 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
 - [PostgreSQL logical decoding docs](https://www.postgresql.org/docs/current/logicaldecoding.html)
 
 </ul>
+
+<!-- Library classes mentioned above, linked to their source at the versions this project builds with. -->
+
+[DefaultErrorHandler]: https://github.com/spring-projects/spring-kafka/blob/v4.1.1/spring-kafka/src/main/java/org/springframework/kafka/listener/DefaultErrorHandler.java
+[EmbeddedKafka]: https://github.com/spring-projects/spring-kafka/blob/v4.1.1/spring-kafka-test/src/main/java/org/springframework/kafka/test/context/EmbeddedKafka.java
+[WebMvcTest]: https://github.com/spring-projects/spring-boot/blob/v4.1.1/module/spring-boot-webmvc-test/src/main/java/org/springframework/boot/webmvc/test/autoconfigure/WebMvcTest.java
