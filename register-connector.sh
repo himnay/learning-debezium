@@ -7,12 +7,15 @@ CONNECT_URL="${CONNECT_URL:-http://localhost:8083}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONNECTOR_FILE="${SCRIPT_DIR}/orders-connector.json"
 
+# pretty-print with jq when it is installed, plain JSON otherwise
+pretty() { if command -v jq >/dev/null 2>&1; then jq .; else cat; echo; fi; }
+
 echo "Registering orders-connector at ${CONNECT_URL} ..."
 curl -fsS -X POST \
   -H 'Content-Type: application/json' \
   --data @"${CONNECTOR_FILE}" \
-  "${CONNECT_URL}/connectors" | jq . 2>/dev/null || true
+  "${CONNECT_URL}/connectors" | pretty || true
 
 echo
 echo "Connector status:"
-curl -fsS "${CONNECT_URL}/connectors/orders-connector/status" | jq . 2>/dev/null
+curl -fsS "${CONNECT_URL}/connectors/orders-connector/status" | pretty

@@ -102,7 +102,7 @@ services:
 
   # ── Kafdrop — Kafka Web UI ─────────────────────────────────────────────────
   kafdrop:
-    image: obsidiandynamics/kafdrop:latest
+    image: obsidiandynamics/kafdrop:4.3.0
     container_name: debezium-kafdrop
     depends_on:
       kafka:
