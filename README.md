@@ -222,13 +222,13 @@ OWASP profiles) — same conventions as the sibling `learning-*` projects.
 
 ### <span style="color:hsl(45,80%,50%)">Infrastructure (`docker-compose.yml`)</span>
 
-| Service        | Container               | Port | Notes                                  |
-|----------------|-------------------------|------|----------------------------------------|
+| Service        | Container               | Port | Notes                                                                                          |
+|----------------|-------------------------|------|------------------------------------------------------------------------------------------------|
 | `postgres`     | `debezium-postgres`     | 5432 | Postgres 19beta3 (still beta as of Sep 2026 — use 18 for anything stable), `wal_level=logical` |
-| `kafka`        | `debezium-kafka`        | 9092 | `cp-kafka:8.3.2` (Kafka 4.2), KRaft only |
-| `connect`      | `debezium-connect`      | 8083 | Debezium Kafka Connect worker (`connect:3.6` → 3.6.3.Final) |
-| `connect-init` | `debezium-connect-init` | —    | One-shot curl: registers the connector |
-| `kafdrop`      | `debezium-kafdrop`      | 9000 | Kafka web UI — browse the topic        |
+| `kafka`        | `debezium-kafka`        | 9092 | `cp-kafka:8.3.2` (Kafka 4.2), KRaft only                                                       |
+| `connect`      | `debezium-connect`      | 8083 | Debezium Kafka Connect worker (`connect:3.6` → 3.6.3.Final)                                    |
+| `connect-init` | `debezium-connect-init` | —    | One-shot curl: registers the connector                                                         |
+| `kafdrop`      | `debezium-kafdrop`      | 9000 | Kafka web UI (`kafdrop:4.3.0`) — browse the topic                                              |
 
 ### <span style="color:hsl(183,80%,58%)">End-to-end flow</span>
 
@@ -307,6 +307,7 @@ the same partition — Kafka then guarantees consumers see that order's changes 
 | `tombstones.on.delete=true`                                      | Keeps the topic compaction-ready                                                                                                                                                                                                                                |
 | [`DefaultErrorHandler`][DefaultErrorHandler] with backoff + skip | A poison message must not block the CDC stream — retry twice, log, move on (use a dead-letter topic in production)                                                                                                                                              |
 | Container names prefixed `debezium-`                             | Bare names like `kafka` collide with the other `learning-*` project stacks on the same machine                                                                                                                                                                  |
+| `OrderRequest` limits mirror the `orders` columns                | `NUMERIC(10,2)` would silently round a price of `9.999` to `10.00` while the API echoes `9.999`, and over-long strings would fail as a 500 instead of a 400                                                                                                     |
 | One-shot `connect-init` service                                  | `docker compose up -d` yields a fully wired pipeline, no manual REST call                                                                                                                                                                                       |
 
 <a id="8-running-the-project"></a>
@@ -323,8 +324,9 @@ mvn spring-boot:run -pl order-processor
 
 ### <span style="color:hsl(13,80%,58%)">Try it</span>
 
-Import `learning-debezium.insomnia.json` into Insomnia (folders for Orders CRUD,
-Debezium Connect admin, and actuator health), or use curl:
+Import `learning-debezium-cdc.insomnia.json` into Insomnia (folders for Orders CRUD,
+Debezium Connect admin, and actuator health; `insomnia-collection.json` holds just the
+order-service requests), or use curl:
 
 ```bash
 # Create — watch order-processor log the CREATE event
@@ -401,6 +403,16 @@ curl -s -X DELETE localhost:8083/connectors/orders-connector       # remove
 ./register-connector.sh                                    # (re)register manually
 ```
 
+Removing the connector does **not** remove what it created in Postgres. The replication slot
+`orders_slot` stays, and keeps holding WAL from its last confirmed position, and so does the
+publication (`dbz_publication`, Debezium's default name). Re-registering with the same slot
+name resumes from there. To retire the pipeline for good, drop both:
+
+```sql
+SELECT pg_drop_replication_slot('orders_slot');   -- fails while a connector still uses it
+DROP PUBLICATION dbz_publication;
+```
+
 Useful Postgres-side checks:
 
 ```sql
@@ -418,6 +430,11 @@ SELECT pg_size_pretty(pg_wal_lsn_diff(pg_current_wal_lsn(), confirmed_flush_lsn)
 - **Replication slot ↔ disk growth.** Postgres retains WAL until the slot consumes it. If
   the connector is down for a long weekend, WAL piles up and can fill the disk. Monitor
   `retained_wal` (query above) and set `max_slot_wal_keep_size` as a circuit breaker.
+- **Quiet tables still hold WAL.** The slot only advances when Debezium confirms a position,
+  and it confirms after processing captured changes. If `orders` sees no writes while other
+  tables on the server are busy, WAL keeps piling up. Set `heartbeat.interval.ms` (plus
+  `heartbeat.action.query` for a database with no other traffic) so the connector confirms
+  progress regularly.
 - **Delivery is at-least-once.** After a crash the connector may re-emit events it already
   sent. Consumers must be **idempotent** (upserts keyed on primary key + LSN work well).
 - **Ordering is per key, not global.** Events for one order are ordered (same partition);
