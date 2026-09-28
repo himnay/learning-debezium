@@ -7,7 +7,7 @@
     <parent>
         <groupId>com.org.llm</groupId>
         <artifactId>super-pom</artifactId>
-        <version>1.1.4</version>
+        <version>1.2.0</version>
         <relativePath>../super-pom/pom.xml</relativePath>
     </parent>
 
@@ -22,11 +22,6 @@
         <module>order-service</module>
         <module>order-processor</module>
     </modules>
-
-    <properties>
-        <java.version>25</java.version>
-        <maven.compiler.release>${java.version}</maven.compiler.release>
-    </properties>
 
     <dependencies>
         <dependency>

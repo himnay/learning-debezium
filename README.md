@@ -216,7 +216,7 @@ Lifecycle on `docker compose up`:
 | `order-service`   | 8080 | REST API for orders; owns the schema via Flyway; the CDC **source**                     |
 | `order-processor` | 8081 | Kafka consumer that deserializes and processes Debezium change events; the CDC **sink** |
 
-Both are Spring Boot 4 / Java 25 modules under a root POM that inherits the shared
+Both are Spring Boot 4 / Java 27 modules under a root POM that inherits the shared
 `super-pom` (BOM-managed versions, enforcer, surefire/failsafe, git-commit-id, pitest and
 OWASP profiles) — same conventions as the sibling `learning-*` projects.
 
