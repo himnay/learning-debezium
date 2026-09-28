@@ -14,9 +14,11 @@ import tools.jackson.databind.ObjectMapper;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -57,6 +59,22 @@ class OrderControllerUnitTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(invalid)))
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void createOrder_valuesTheOrdersTableCannotHold_returns400() throws Exception {
+        var customerIdTooLong = new OrderRequest("c".repeat(65), "laptop", 1, new BigDecimal("999.99"));
+        var productTooLong = new OrderRequest("customer-1", "p".repeat(256), 1, new BigDecimal("999.99"));
+        var priceTooPrecise = new OrderRequest("customer-1", "laptop", 1, new BigDecimal("9.999"));
+        var priceTooLarge = new OrderRequest("customer-1", "laptop", 1, new BigDecimal("100000000.00"));
+
+        for (var invalid : List.of(customerIdTooLong, productTooLong, priceTooPrecise, priceTooLarge)) {
+            mockMvc.perform(post("/api/v1/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(invalid)))
+                    .andExpect(status().isBadRequest());
+        }
+        verifyNoInteractions(orderService);
     }
 
     @Test
