@@ -355,12 +355,13 @@ UIs:
 <a id="9-configuration-profiles"></a>
 ## <span style="color:hsl(150,80%,58%)">9. ⚙️ Configuration profiles</span>
 
-There is no `application.yml` — each profile has its own complete file:
+`application.yml` holds one complete section per profile, separated by `---` and selected with
+`spring.config.activate.on-profile` (there are no shared defaults):
 
 ```
 src/main/resources/
-├── application-local.yml   # localhost infra, DEBUG logging
-├── application-prod.yml    # prod hosts, credentials from env vars, INFO logging
+├── application.yml   # local: localhost infra, DEBUG logging
+│                     # prod:  prod hosts, credentials from env vars, INFO logging
 └── banner.txt
 ```
 
